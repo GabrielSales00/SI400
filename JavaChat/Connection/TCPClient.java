@@ -1,7 +1,9 @@
+
+package SI400.JavaChat.Connection;
+
 import java.io.*;
 import java.net.*;
 
-package ChatJava.Connection;
 
 
 public class TCPClient {
