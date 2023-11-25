@@ -1,5 +1,6 @@
 package SI400.JavaChat.GUI;
 
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -14,7 +15,7 @@ public class AboutDialog extends JDialog {
         
         super(parent, "Sobre", true);
 
-        setResizable(false); // Rezising is disabled
+        setResizable(false); // Impede redimensionamento pelo usuário
 
         createUI();
     }
@@ -41,7 +42,12 @@ public class AboutDialog extends JDialog {
 
         add(label, BorderLayout.CENTER);
 
-        setSize(350, 250);
+        //Adding Creators image
+        ImageIcon image = new ImageIcon("JavaChat/Assets/criadores.png");
+        JLabel imagemCradores = new JLabel(image);
+        add(imagemCradores);
+
+        setSize(350, 330);
         setLocationRelativeTo(null);
     }
 }
