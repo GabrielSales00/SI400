@@ -11,11 +11,12 @@ public class TCPServer {
     private DataInputStream inputStream;
 
 
-    public void TCPconnection(int port) {
+    public TCPServer(int port) {
         try {
             this.port = port;
             this.serverSocket = new ServerSocket(this.port);
             System.out.println("Esperando um cliete.");
+            //ficará preso aqui até aceitar
             this.socket = serverSocket.accept();
             System.out.println("Cliente aceitou a conexão.");
         }

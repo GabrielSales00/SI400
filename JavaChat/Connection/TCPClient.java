@@ -11,7 +11,7 @@ public class TCPClient {
     private BufferedReader input;
     private DataOutputStream output;
 
-    public void TCPClient(String host, int port) {
+    public TCPClient(String host, int port) {
         try {
             socket = new Socket(host, port);
             input = new BufferedReader(new InputStreamReader(System.in));
