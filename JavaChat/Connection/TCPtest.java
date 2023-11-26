@@ -8,11 +8,11 @@ import java.net.*;
 public class TCPtest{
     public static void main(String[] args) {
         // port aleatório
-        int port = 0001;
+        int port = 11111;
 
         Thread serverThread = new Thread(() -> {
             TCPServer tcpServer = new TCPServer(port);
-            tcpServer.inputData(); 
+            tcpServer.inputFromClient(); 
             tcpServer.closeConnection();
         });
         serverThread.start();
@@ -26,7 +26,7 @@ public class TCPtest{
 
 
         TCPClient tcpClient = new TCPClient("localhost", port);
-        tcpClient.takesInput();
+        tcpClient.outputToServer();
 
 
         try {
