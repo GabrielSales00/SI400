@@ -57,12 +57,6 @@ public class TCPClient {
             }
             if (output != null) {
                 output.close();
-    public void outputToServer() {
-        String line = "";
-        while (!line.equals(".")) {
-            try {
-                line = input.readLine();
-                output.writeUTF(line);
             }
             connected = false; // added
         } catch (IOException e) {
