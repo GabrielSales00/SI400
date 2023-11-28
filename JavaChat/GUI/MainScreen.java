@@ -1,15 +1,21 @@
 package SI400.JavaChat.GUI;
 
-import javax.swing.*;
+import SI400.JavaChat.Connection.TCPClient;
 import java.awt.*;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class MainScreen extends JFrame {
     private JLabel statusLabel;
     private JTextArea conversationTextArea;
     private JTextField messageField;
     private JButton sendButton;
+    
+    private String serverIP;
+    private int serverPort;
+    private TCPClient tcpClient;
 
     private void chatArea() {
         JPanel chatPanel = new JPanel(new BorderLayout());
@@ -22,14 +28,8 @@ public class MainScreen extends JFrame {
         sendButton = new JButton("Enviar");
 
         sendButton.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
-                String message = messageField.getText();
-                if (!message.isEmpty()) {
-                    conversationTextArea.append("Você: " + message + "\n");
-                    // Transferência de arquivos (Pessoa 4)
-                    messageField.setText("");
-                }
+                sendMessage();
             }
         });
 
@@ -45,19 +45,51 @@ public class MainScreen extends JFrame {
         add(chatPanel);
     }
 
+    private void showConnectionDialog() {
+        ConnectionDialog connectionDialog = new ConnectionDialog(this);
+        connectionDialog.setVisible(true);
+        tcpClient = connectionDialog.getClientConnection();
+
+        if (tcpClient.isConnected()) {
+            statusLabel.setText("Status: Conectado ao servidor");
+            new Thread(() -> tcpClient.receiveMessages(this::appendMessage)).start();
+        } else {
+            statusLabel.setText("Status: Erro de conexão");
+            JOptionPane.showMessageDialog(this, "Não foi possível estabelecer a conexão. Verifique o endereço IP e a porta.", "Erro de Conexão", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+    private void sendMessage() {
+        if (tcpClient != null && tcpClient.isConnected()) {
+            String message = messageField.getText();
+            if (!message.isEmpty()) {
+                tcpClient.sendMessage(message);
+                appendMessage("Você: " + message);
+                messageField.setText("");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Você não está conectado ao servidor.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void appendMessage(String message) {
+        SwingUtilities.invokeLater(() -> conversationTextArea.append(message + "\n"));
+    }
+
 
     public MainScreen() {
         setTitle("Chat Program");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        final boolean[] connectionStatus = {false};
         
         JMenu fileMenu = new JMenu("Arquivo");
         JMenuItem connectItem = new JMenuItem("Conectar");
         connectItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                ConnectionDialog connectionDialog = new ConnectionDialog(MainScreen.this);
-                connectionDialog.setVisible(true);
+            public void actionPerformed(ActionEvent e){
+                showConnectionDialog();
             }
         });
         fileMenu.add(connectItem);
@@ -65,6 +97,10 @@ public class MainScreen extends JFrame {
         JMenuItem exitItem = new JMenuItem("Sair");
         exitItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // Adicione o código para fechar a conexão antes de sair
+                if (tcpClient != null) {
+                    tcpClient.closeConnection();
+                }
                 System.exit(0);
             }
         });
@@ -96,8 +132,7 @@ public class MainScreen extends JFrame {
 
         chatArea();
 
-        boolean connectionStatus = true;
-        statusLabel = new JLabel("Status da conexão: " + connectionStatus, JLabel.CENTER);
+        statusLabel = new JLabel("Status da conexão: " + connectionStatus[0], JLabel.CENTER);
         statusLabel.setLayout(new GridLayout(5, 10, 0, 2));
         add(statusLabel, BorderLayout.PAGE_END);
 

@@ -1,7 +1,8 @@
 package SI400.JavaChat.GUI;
 
-import javax.swing.*;
+import SI400.JavaChat.Connection.TCPClient;
 import java.awt.*;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -11,26 +12,30 @@ public class ConnectionDialog extends JDialog {
 
     private JTextField fieldIP;
     private JTextField fieldPort;
+    private JButton connectButton;
+
+    private boolean isConnected;  // Adicionada para verificar se a conexão foi estabelecida
+    private TCPClient clientConnection;
 
     public ConnectionDialog(Frame parent) {
         super(parent, "Conexão", true);
         setResizable(false);
 
         createUI();
+        isConnected = false;
     }
-
     private void createUI() {
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
         JLabel ipLabel = new JLabel("Endereço IP:");
-        fieldIP = new JTextField(15); //Setting the initial size of the field (just as a tip to how many characters should be there)
+        fieldIP = new JTextField(15);
 
         JLabel portLabel = new JLabel("Porta:");
-        fieldPort = new JTextField(8); //Setting the initial size of the field (just as a tip to how many characters should be there)
+        fieldPort = new JTextField(8);
 
-        JButton connectButton = new JButton("Conectar");
+        connectButton = new JButton("Conectar");
         connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 handleConnection();
@@ -63,17 +68,23 @@ public class ConnectionDialog extends JDialog {
     }
 
     private void handleConnection() {
+        String ipAddress = fieldIP.getText();
+        int port;
+
         try {
-            String ipAddress = fieldIP.getText();
-            int port = Integer.parseInt(fieldPort.getText());
-            
-            // Lógica para lidar com a conexão aqui
-            
-            // Precisa dar uma confirmação caso funcionou a conexão
-            JOptionPane.showMessageDialog(this, "Conexão estabelecida com sucesso!", "Conexão", JOptionPane.INFORMATION_MESSAGE);
+            port = Integer.parseInt(fieldPort.getText());
+            clientConnection = new TCPClient(ipAddress, port);
+            clientConnection.connect();
+            setVisible(false);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para a porta.", "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Não foi possível estabelecer a conexão. Verifique o endereço IP e a porta.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public TCPClient getClientConnection() {
+        return clientConnection;
     }
 }
 

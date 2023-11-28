@@ -3,12 +3,12 @@ package SI400.JavaChat.Connection;
 import java.io.*;
 import java.net.*;
 
-
 public class TCPServer {
     private int port;
     private ServerSocket serverSocket;
     private Socket socket;
     private DataInputStream inputStream;
+    private DataOutputStream outputStream;
 
 
     public void TCPconnection(int port) {
@@ -18,6 +18,9 @@ public class TCPServer {
             System.out.println("Esperando um cliete.");
             this.socket = serverSocket.accept();
             System.out.println("Cliente aceitou a conexão.");
+            this.outputStream = new DataOutputStream(
+                    new BufferedOutputStream(this.socket.getOutputStream())
+            );
         }
         catch (IOException e) {
             System.out.println(e);
@@ -57,6 +60,14 @@ public class TCPServer {
             inputStream.close();
         }
         catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
+    public void sendData(String message) {
+        try {
+            outputStream.writeUTF(message);
+        } catch (IOException e) {
             System.out.println(e);
         }
     }
