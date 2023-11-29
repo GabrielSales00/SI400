@@ -11,20 +11,23 @@ public class TCPServer {
     private DataOutputStream outputStream;
 
 
-    public void TCPconnection(int port) {
+    public TCPServer(int port) {
         try {
             this.port = port;
             this.serverSocket = new ServerSocket(this.port);
+        }
+        catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
+    public void awaitConnection() {
             System.out.println("Esperando um cliete.");
             this.socket = serverSocket.accept();
             System.out.println("Cliente aceitou a conexão.");
             this.outputStream = new DataOutputStream(
                     new BufferedOutputStream(this.socket.getOutputStream())
             );
-        }
-        catch (IOException e) {
-            System.out.println(e);
-        }
     }
 
     //recebe input do clientSocket
